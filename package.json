@@ -7,18 +7,21 @@
   "name": "nodejs-structure",
   "description": "sample nodejs structure project",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\""
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.2",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^5.1.0",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0",
-    "dotenv": "^16.4.5"
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

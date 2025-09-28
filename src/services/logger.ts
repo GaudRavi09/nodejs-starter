@@ -1,9 +1,9 @@
-import path from "path";
-import winston from "winston";
-import DailyRotateFile from "winston-daily-rotate-file";
+import path from 'path';
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 // create logs directory if it doesn't exist
-const logsDir = path.join(process.cwd(), "logs");
+const logsDir = path.join(process.cwd(), 'logs');
 
 // define log levels
 const levels = {
@@ -16,11 +16,11 @@ const levels = {
 
 // define colors for each level
 const colors = {
-  error: "red",
-  info: "green",
-  warn: "yellow",
-  debug: "white",
-  http: "magenta",
+  error: 'red',
+  info: 'green',
+  warn: 'yellow',
+  debug: 'white',
+  http: 'magenta',
 };
 
 // tell winston that you want to link the colors
@@ -31,42 +31,35 @@ const transports = [
   // console transport
   new winston.transports.Console({
     format: winston.format.combine(
-      winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
       winston.format.colorize({ all: true }),
-      winston.format.printf(
-        (info) => `${info.timestamp} ${info.level}: ${info.message}`
-      )
+      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+      winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`),
     ),
   }),
 
   // daily rotate file transport for all logs in single file
   new DailyRotateFile({
-    filename: path.join(logsDir, "%DATE%.log"),
-    datePattern: "YYYY-MM-DD",
+    maxSize: '20m',
+    maxFiles: '14d',
     zippedArchive: true,
-    maxSize: "20m",
-    maxFiles: "14d",
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    ),
+    datePattern: 'YYYY-MM-DD',
+    filename: path.join(logsDir, '%DATE%.log'),
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   }),
 ];
 
 // create the logger
 const logger = winston.createLogger({
-  level:
-    process.env.LOG_LEVEL ||
-    (process.env.NODE_ENV === "production" ? "warn" : "debug"),
   levels,
   transports,
   exitOnError: false,
+  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'warn' : 'debug'),
 });
 
 // create a stream object with a 'write' function that will be used by morgan
 export const morganStream = {
   write: (message: string) => {
-    logger.http(message.substring(0, message.lastIndexOf("\n")));
+    logger.http(message.substring(0, message.lastIndexOf('\n')));
   },
 };
 

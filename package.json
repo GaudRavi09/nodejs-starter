@@ -1,0 +1,21 @@
+{
+  "license": "ISC",
+  "type": "commonjs",
+  "version": "1.0.0",
+  "author": "Ravi Gaud",
+  "main": "src/index.ts",
+  "name": "nodejs-structure",
+  "description": "sample nodejs structure project",
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.5.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

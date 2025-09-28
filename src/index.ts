@@ -1,12 +1,13 @@
-import express from "express";
+import app from "./app";
+import dotenv from "dotenv";
+import logger from "./services/logger";
 
-const PORT = 3000;
-const app = express();
+// load environment variables
+dotenv.config();
 
-app.get("/", (req, res) => {
-  res.send("Hello TypeScript + Node.js!");
-});
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  logger.info(`Server running on http://localhost:${PORT}`);
+  logger.info("Logger service initialized successfully");
 });

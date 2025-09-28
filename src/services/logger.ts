@@ -1,9 +1,9 @@
 import path from 'path';
-import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+import { createLogger, transports, format, addColors } from 'winston';
 
 // create logs directory if it doesn't exist
-const logsDir = path.join(process.cwd(), 'logs');
+const dir = path.join(process.cwd(), 'logs');
 
 // define log levels
 const levels = {
@@ -24,43 +24,28 @@ const colors = {
 };
 
 // tell winston that you want to link the colors
-winston.addColors(colors);
+addColors(colors);
 
-// define which transports the logger must use
-const transports = [
-  // console transport
-  new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize({ all: true }),
-      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
-      winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`),
-    ),
-  }),
-
-  // daily rotate file transport for all logs in single file
-  new DailyRotateFile({
-    maxSize: '20m',
-    maxFiles: '14d',
-    zippedArchive: true,
-    datePattern: 'YYYY-MM-DD',
-    filename: path.join(logsDir, '%DATE%.log'),
-    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-  }),
-];
-
-// create the logger
-const logger = winston.createLogger({
-  levels,
-  transports,
-  exitOnError: false,
-  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'warn' : 'debug'),
+const dailyRotateFile = new DailyRotateFile({
+  maxSize: '20m',
+  level: 'debug',
+  maxFiles: '14d',
+  zippedArchive: true,
+  handleExceptions: true,
+  datePattern: 'YYYY-MM-DD',
+  filename: dir + '/%DATE%.log',
+  format: format.combine(format.errors({ stack: true }), format.timestamp(), format.json()),
 });
 
-// create a stream object with a 'write' function that will be used by morgan
-export const morganStream = {
-  write: (message: string) => {
-    logger.http(message.substring(0, message.lastIndexOf('\n')));
-  },
-};
-
-export default logger;
+export default createLogger({
+  levels,
+  transports: [
+    dailyRotateFile,
+    new transports.Console({
+      level: 'debug',
+      format: format.combine(format.prettyPrint(), format.errors({ stack: true }), format.colorize({ all: true })),
+    }),
+  ],
+  exceptionHandlers: [dailyRotateFile],
+  exitOnError: false, // do not exit on handled exceptions
+});

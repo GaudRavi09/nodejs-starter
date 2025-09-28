@@ -12,6 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,js,json}\""
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.2",
     "prettier": "^3.6.2",
@@ -19,6 +20,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^5.1.0",
     "winston": "^3.17.0",

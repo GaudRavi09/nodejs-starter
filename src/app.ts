@@ -1,30 +1,38 @@
-import express from 'express';
-import logger from './services/logger';
+import cors from 'cors';
+import Logger from './services/logger';
+import { corsUrl, environment } from './config';
+import express, { ErrorRequestHandler } from 'express';
+import { NotFoundError, ApiError, InternalError, ErrorType } from './services/ApiError';
+
+process.on('uncaughtException', (e) => {
+  Logger.error(e);
+});
 
 const app = express();
 
-// middleware to parse JSON
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(cors({ origin: corsUrl, optionsSuccessStatus: 200 }));
+app.use(express.urlencoded({ limit: '10mb', extended: true, parameterLimit: 50000 }));
 
-// log all requests
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.url} - ${req.ip}`);
-  next();
-});
+// catch 404 and forward to error handler
+app.use((req, res, next) => next(new NotFoundError()));
 
-app.get('/', (req, res) => {
-  logger.info('Home route accessed');
-  res.send('Hello TypeScript + Node.js!');
-});
+// middleware error handler
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  if (err instanceof ApiError) {
+    ApiError.handle(err, res);
+    if (err.type === ErrorType.INTERNAL)
+      Logger.error(`500 - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  } else {
+    Logger.error(`500 - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    Logger.error(err);
+    if (environment === 'development') {
+      res.status(500).send(err);
+    }
+    ApiError.handle(new InternalError(), res);
+  }
+};
 
-app.get('/health', (req, res) => {
-  logger.info('Health check endpoint accessed');
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-app.get('/error', (req, res) => {
-  logger.error('This is a test error log');
-  res.status(500).json({ error: 'Test error endpoint' });
-});
+app.use(errorHandler);
 
 export default app;

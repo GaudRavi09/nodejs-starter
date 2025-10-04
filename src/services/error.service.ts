@@ -5,7 +5,7 @@ import {
   AuthFailureResponse,
   InternalErrorResponse,
   AccessTokenErrorResponse,
-} from './ApiResponse';
+} from './response.service';
 import { Response } from 'express';
 import { environment } from '../config';
 

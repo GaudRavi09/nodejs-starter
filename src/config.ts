@@ -1,31 +1,48 @@
+import { Dialect } from 'sequelize';
+import env from './utils/validate-env';
+
+interface dbConfig {
+  [key: string]: {
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+    dialect: Dialect;
+    logging: boolean;
+    database: string;
+  };
+}
+
+export const db: dbConfig = {
+  development: {
+    logging: false,
+    dialect: 'mysql',
+    port: env.MYSQL_PORT,
+    host: env.MYSQL_HOST,
+    username: env.MYSQL_USER,
+    password: env.MYSQL_PASSWORD,
+    database: `${env.DB_NAME}_dev`,
+  },
+  staging: {
+    logging: false,
+    dialect: 'mysql',
+    port: env.MYSQL_PORT,
+    host: env.MYSQL_HOST,
+    username: env.MYSQL_USER,
+    password: env.MYSQL_PASSWORD,
+    database: `${env.DB_NAME}_stg`,
+  },
+  production: {
+    logging: false,
+    dialect: 'mysql',
+    host: env.MYSQL_HOST,
+    port: env.MYSQL_PORT,
+    database: env.DB_NAME,
+    username: env.MYSQL_USER,
+    password: env.MYSQL_PASSWORD,
+  },
+};
+
 // mapper for environment variables
-export const port = process.env.PORT;
-export const corsUrl = process.env.CORS_URL;
-export const environment = process.env.NODE_ENV;
-
-// export const db = {
-//   name: process.env.DB_NAME || '',
-//   host: process.env.DB_HOST || '',
-//   port: process.env.DB_PORT || '',
-//   user: process.env.DB_USER || '',
-//   password: process.env.DB_USER_PWD || '',
-//   minPoolSize: parseInt(process.env.DB_MIN_POOL_SIZE || '5'),
-//   maxPoolSize: parseInt(process.env.DB_MAX_POOL_SIZE || '10'),
-// };
-
-// export const tokenInfo = {
-//   issuer: process.env.TOKEN_ISSUER || '',
-//   audience: process.env.TOKEN_AUDIENCE || '',
-//   accessTokenValidity: parseInt(process.env.ACCESS_TOKEN_VALIDITY_SEC || '0'),
-//   refreshTokenValidity: parseInt(process.env.REFRESH_TOKEN_VALIDITY_SEC || '0'),
-// };
-
-// export const redis = {
-//   host: process.env.REDIS_HOST || '',
-//   password: process.env.REDIS_PASSWORD || '',
-//   port: parseInt(process.env.REDIS_PORT || '0'),
-// };
-
-// export const caching = {
-//   contentCacheDuration: parseInt(process.env.CONTENT_CACHE_DURATION_MILLIS || '600000'),
-// };
+export const port = env.PORT;
+export const environment = env.NODE_ENV;

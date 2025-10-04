@@ -1,13 +1,30 @@
-import app from './app';
-import dotenv from 'dotenv';
-import Logger from './services/logger';
+import 'dotenv/config';
+import { App } from './app';
+import { createServer } from 'http';
+import { Sequelize } from 'sequelize';
+import env from './utils/validate-env';
+import Logger from './services/logger.service';
+import { initializeDatabase } from './database';
 
-// load environment variables
-dotenv.config();
+const app = new App();
+let sequelize: Sequelize;
+const PORT = env.PORT || 3000;
+const http = createServer(app.express);
 
-const PORT = process.env.PORT || 3000;
+try {
+  (async () => {
+    // initialize database connection
+    sequelize = await initializeDatabase();
 
-app.listen(PORT, () => {
-  Logger.info(`Server running on http://localhost:${PORT}`);
-  Logger.info('Logger service initialized successfully');
-});
+    // now run alter operation safely
+    await sequelize.sync({ alter: true });
+    Logger.info('Database synchronized successfully');
+
+    // start the server
+    http.listen(PORT, async () => {
+      Logger.info(`Server is running on port ${PORT}`);
+    });
+  })();
+} catch (error) {
+  Logger.error(error);
+}
